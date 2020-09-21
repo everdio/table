@@ -26,7 +26,7 @@ namespace Modules\Table {
             foreach ($columns->fetchAll(\PDO::FETCH_ASSOC) as $row) {
                 $sample = $this->prepare(sprintf("SELECT `%s` FROM `%s`.`%s`WHERE`%s` <> '' LIMIT 1", $row["COLUMN_NAME"], $this->database, $this->table, $row["COLUMN_NAME"]));
                 $value = $this->hydrate(($sample && $sample->execute() ? $sample->fetchColumn() : $row["COLUMN_DEFAULT"]));                
-               
+
                 switch ($row["DATA_TYPE"]) {
                     case "char":
                     case "longtext":
@@ -83,12 +83,10 @@ namespace Modules\Table {
                     $this->relations = [$this->labelize($row["CONSTRAINT_NAME"]) => $this->namespace . "\\" . $this->labelize($row["REFERENCED_TABLE_NAME"])];
                 }
             }
-            
             $many = $this->prepare(sprintf("SELECT * FROM`information_schema`.`KEY_COLUMN_USAGE`WHERE`information_schema`.`KEY_COLUMN_USAGE`.`TABLE_SCHEMA`='%s'AND`information_schema`.`KEY_COLUMN_USAGE`.`REFERENCED_TABLE_NAME`='%s'", $this->database, $this->table));
             $many->execute();           
             foreach($many->fetchAll(\PDO::FETCH_ASSOC) as $row) {
                 $this->relations = [$this->labelize($row["CONSTRAINT_NAME"]) => $this->namespace . "\\" . $this->labelize($row["TABLE_NAME"])];
-                $this->keys = [$this->labelize($row["CONSTRAINT_NAME"]) => $this->mapping[$row["COLUMN_NAME"]]];
             } 
         }
     }
