@@ -15,7 +15,7 @@ namespace Modules\Table {
                         } elseif ($table->get($parameter)->hasType(Validator\IsString::TYPE) || $table->get($parameter)->hasType(Validator\IsString\IsDateTime\IsDate::TYPE)) {
                             $operators[] = sprintf("`%s`.`%s`.`%s`%s '%s'", $table->database, $table->table, $table->getField($parameter), $expression, $value);
                         } elseif ($table->get($parameter)->hasType(Validator\IsArray::TYPE)) { 
-                            //$operators[] = sprintf(" FIND_IN_SET('%s',`%s`.`%s`.`%s`)", implode(",", $value), $table->database, $table->table, $table->getField($parameter));
+                            $operators[] = sprintf(" FIND_IN_SET('%s',`%s`.`%s`.`%s`)", implode(",", $value), $table->database, $table->table, $table->getField($parameter));
                         }
                     }
                 }               

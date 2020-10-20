@@ -56,7 +56,7 @@ namespace Modules\Table {
                         $parameter = new Validation\Parameter($this->labelize($row["COLUMN_NAME"]), date("Y-m-d H:i:s"), NULL, ($row["IS_NULLABLE"] === "YES" ? false : true));
                         break;
                     default:
-                        throw new Event(sprintf("unknown column type %s for `%s`.`%s`", $row["DATA_TYPE"], $this->table, $row["COLUMN_NAME"]));
+                        throw new \LogicException(sprintf("unknown column type %s for `%s`.`%s`", $row["DATA_TYPE"], $this->table, $row["COLUMN_NAME"]));
                 }
                                 
                 $this->add((string) $parameter, $parameter->getValidation($parameter->getValidators()));

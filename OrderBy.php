@@ -4,10 +4,8 @@ namespace Modules\Table {
     final class OrderBy extends \Components\Validation {
         public function __construct(\Components\Core $table, array $orderby, array $values = []) {
             foreach ($orderby as $order => $parameters) {
-                foreach ($parameters as $parameter) {
-                    if ($table->exists($parameter)) {
-                        $values[] = sprintf("%s %s", $table->getColumn($parameter), strtoupper($order));
-                    }
+                foreach ($table->inter($parameters) as $parameter) {
+                    $values[] = sprintf("`%s`.`%s`.`%s` %s", $table->database, $table->table, $table->getField($parameter), strtoupper($order));
                 }
             }
             
