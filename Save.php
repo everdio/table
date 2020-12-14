@@ -2,7 +2,7 @@
 namespace Modules\Table {
     use \Components\Validator;
     final class Save extends \Components\Validation {
-        public function __construct(\COmponents\Core  $table) {
+        public function __construct(\COmponents\Core\Adapter\Mapper  $table) {
             $insert = new Insert($table);
             $values = new Values($table);
             $update = new Update($table);            

@@ -5,12 +5,12 @@ namespace Modules\Table {
         public function __construct(\Components\Core $table, array $values = []) {
             foreach ($table->mapping as $parameter) {
                 if (isset($table->{$parameter}) && !($table->get($parameter)->hasType(Validator\IsString\IsDatetime::TYPE) || $table->get($parameter)->hasType(Validator\IsString\IsDatetime\Timestamp::TYPE))) {
-                    if ($table->get($parameter)->hasType(Validator\IsEmpty::TYPE) && empty($table->{$parameter})) {
+                    if ($table->get($parameter)->hasType(Validator\IsEmpty::TYPE) && empty($table->{$parameter}) && $table->{$parameter} !== 0) {
                         $values[$parameter] = sprintf("`%s`.`%s`.`%s`=%s ", $table->database, $table->table, $table->getField($parameter), "NULL");
                     } elseif ($table->get($parameter)->hasType(Validator\IsInteger::TYPE) || $table->get($parameter)->hasType(Validator\IsNumeric::TYPE)) {
                         $values[$parameter] = sprintf("`%s`.`%s`.`%s`=%s ", $table->database, $table->table, $table->getField($parameter), $table->{$parameter});
-                } elseif ($table->get($parameter)->hasType(Validator\IsString::TYPE) || $table->get($parameter)->hasType(Validator\IsString\IsDateTime\IsDate::TYPE)) {
-                        $values[$parameter] = sprintf("`%s`.`%s`.`%s`='%s'",$table->database, $table->table, $table->getField($parameter), addslashes($table->{$parameter}));
+                    } elseif ($table->get($parameter)->hasType(Validator\IsDefault::TYPE) || $table->get($parameter)->hasType(Validator\IsString::TYPE) || $table->get($parameter)->hasType(Validator\IsString\IsDateTime\IsDate::TYPE)) {
+                        $values[$parameter] = sprintf("`%s`.`%s`.`%s`='%s'",$table->database, $table->table, $table->getField($parameter), $this->sanitize($table->{$parameter}));
                     } elseif ($table->get($parameter)->hasType(Validator\IsArray::TYPE)) {
                         $values[$parameter] = sprintf("`%s`.`%s`.`%s`='%s'", $table->database, $table->table, $table->getField($parameter), implode(",", $table->{$parameter}));
                     }                    

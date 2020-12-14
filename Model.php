@@ -2,7 +2,7 @@
 namespace Modules\Table {
     use Components\Validation;
     use Components\Validator;
-    final class Model extends \Components\Core\Mapper\Model {
+    final class Model extends \Components\Core\Adapter\Mapper\Model {
         use \Modules\Table\Pdo;
         public function __construct() {
             parent::__construct([
@@ -10,11 +10,7 @@ namespace Modules\Table {
                 "username" => new Validation(false, array(new Validator\IsString)),
                 "password" => new Validation(false, array(new Validator\IsString)),
                 "database" => new Validation(false, array(new Validator\IsString)),
-                "table" => new Validation(false, array(new Validator\IsString)),
-                "mapping" => new Validation(false, array(new Validator\IsArray)),
-                "primary" => new Validation(false, array(new Validator\IsArray)),
-                "keys" => new Validation(false, array(new Validator\IsArray)),
-                "relations" => new Validation(false, array(new Validator\IsArray))
+                "table" => new Validation(false, array(new Validator\IsString))
             ]);
             
             $this->use = "\Modules\Table\Pdo";
@@ -25,8 +21,7 @@ namespace Modules\Table {
             $columns->execute();
             foreach ($columns->fetchAll(\PDO::FETCH_ASSOC) as $row) {
                 $sample = $this->prepare(sprintf("SELECT `%s` FROM `%s`.`%s`WHERE`%s` <> '' LIMIT 1", $row["COLUMN_NAME"], $this->database, $this->table, $row["COLUMN_NAME"]));
-                $value = $this->hydrate(($sample && $sample->execute() ? $sample->fetchColumn() : $row["COLUMN_DEFAULT"]));                
-
+                $value = (empty($row["COLUMN_DEFAULT"]) && $sample && $sample->execute() ? $sample->fetchColumn() : $row["COLUMN_DEFAULT"]);                
                 switch ($row["DATA_TYPE"]) {
                     case "char":
                     case "longtext":
@@ -40,20 +35,20 @@ namespace Modules\Table {
                     case "smallint":                            
                     case "decimal":
                     case "int":
-                        $parameter = new Validation\Parameter($this->labelize($row["COLUMN_NAME"]), (!empty($row["COLUMN_DEFAULT"]) ? $this->hydrate($row["COLUMN_DEFAULT"]) : $value), !empty($row["COLUMN_DEFAULT"]), ($row["IS_NULLABLE"] === "YES" ? false : true), $row["CHARACTER_MAXIMUM_LENGTH"]);     
+                        $parameter = new Validation\Parameter($this->labelize($row["COLUMN_NAME"]), $this->hydrate($value), !empty($row["COLUMN_DEFAULT"]), ($row["IS_NULLABLE"] === "YES" ? false : true), $row["CHARACTER_MAXIMUM_LENGTH"]);     
                         break;
-                    case "enum":
-                        $parameter = new Validation\Parameter($this->labelize($row["COLUMN_NAME"]), (!empty($row["COLUMN_DEFAULT"]) ? $this->hydrate($row["COLUMN_DEFAULT"]) : false), !empty($row["COLUMN_DEFAULT"]), ($row["IS_NULLABLE"] === "YES" ? false : true), NULL, explode(",", str_replace("'", false, trim($row["COLUMN_TYPE"], "enum()"))));
+                    case "enum":                        
+                        $parameter = new Validation\Parameter($this->labelize($row["COLUMN_NAME"]), $this->hydrate($value), !empty($row["COLUMN_DEFAULT"]), ($row["IS_NULLABLE"] === "YES" ? false : true), NULL, explode(",", str_replace("'", false, trim($row["COLUMN_TYPE"], "enum()"))));
                         break;
                     case "set":
-                        $parameter = new Validation\Parameter($this->labelize($row["COLUMN_NAME"]), explode(",", $row["COLUMN_DEFAULT"]), $row["COLUMN_DEFAULT"], ($row["IS_NULLABLE"] === "YES" ? false : true), NULL, explode(",", str_replace("'", false, trim($row["COLUMN_TYPE"], "set()"))));
+                        $parameter = new Validation\Parameter($this->labelize($row["COLUMN_NAME"]), explode(",", $this->hydrate($value)), !empty($row["COLUMN_DEFAULT"]), ($row["IS_NULLABLE"] === "YES" ? false : true), NULL, explode(",", str_replace("'", false, trim($row["COLUMN_TYPE"], "set()"))));
                         break;
                     case "date":
-                        $parameter = new Validation\Parameter($this->labelize($row["COLUMN_NAME"]), date("Y-m-d"), NULL, ($row["IS_NULLABLE"] === "YES" ? false : true));
+                        $parameter = new Validation\Parameter($this->labelize($row["COLUMN_NAME"]), date("Y-m-d"), false, ($row["IS_NULLABLE"] === "YES" ? false : true));
                         break;
                     case "datetime":
                     case "timestamp":
-                        $parameter = new Validation\Parameter($this->labelize($row["COLUMN_NAME"]), date("Y-m-d H:i:s"), NULL, ($row["IS_NULLABLE"] === "YES" ? false : true));
+                        $parameter = new Validation\Parameter($this->labelize($row["COLUMN_NAME"]), date("Y-m-d H:i:s"), false, ($row["IS_NULLABLE"] === "YES" ? false : true));
                         break;
                     default:
                         throw new \LogicException(sprintf("unknown column type %s for `%s`.`%s`", $row["DATA_TYPE"], $this->table, $row["COLUMN_NAME"]));
