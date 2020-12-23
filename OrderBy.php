@@ -9,7 +9,7 @@ namespace Modules\Table {
                 }
             }
             
-            parent::__construct("ORDER BY" . implode(",", $values), array(new Validator\IsString\InArray(["DESC","ASC"])), self::STRICT);
+            parent::__construct("ORDER BY" . implode(",", $values), array(new Validator\IsString\Contains(["DESC","ASC"])), self::STRICT);
         }
     }
 }
