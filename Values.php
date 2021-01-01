@@ -4,20 +4,20 @@ namespace Modules\Table {
     final class Values extends \Components\Validation {
         public function __construct(\Components\Core $table, array $values = []) {
             foreach ($table->mapping as $parameter) {
-                if (isset($table->{$parameter}) && !($table->get($parameter)->hasType(Validator\IsString\IsDatetime::TYPE) || $table->get($parameter)->hasType(Validator\IsString\IsDatetime\Timestamp::TYPE))) {
-                    if ($table->get($parameter)->hasType(Validator\IsEmpty::TYPE) && empty($table->{$parameter}) && $table->{$parameter} !== 0) {
+                if (isset($table->{$parameter}) && !($table->get($parameter)->hasTypes([Validator\IsString\IsDatetime::TYPE, Validator\IsString\IsDatetime\Timestamp::TYPE]))) {
+                    if ($table->get($parameter)->hasTypes([Validator\IsEmpty::TYPE]) && empty($table->{$parameter}) && $table->{$parameter} !== 0) {
                         $values[$parameter] = "NULL";
-                    } elseif ($table->get($parameter)->hasType(Validator\IsInteger::TYPE) || $table->get($parameter)->hasType(Validator\IsNumeric::TYPE)) {
+                    } elseif ($table->get($parameter)->hasTypes([Validator\IsInteger::TYPE, Validator\IsNumeric::TYPE])) {
                         $values[$parameter] = $table->{$parameter};
-                    } elseif ($table->get($parameter)->hasType(Validator\IsDefault::TYPE) || $table->get($parameter)->hasType(Validator\IsString::TYPE) || $table->get($parameter)->hasType(Validator\IsString\IsDateTime\IsDate::TYPE)) {
+                    } elseif ($table->get($parameter)->hasTypes([Validator\IsDefault::TYPE, Validator\IsString::TYPE, Validator\IsString\IsDateTime\IsDate::TYPE])) {
                         $values[$parameter] = sprintf("'%s'", $this->sanitize($table->{$parameter}));
-                    } elseif ($table->get($parameter)->hasType(Validator\IsArray::TYPE)) {
+                    } elseif ($table->get($parameter)->hasTypes([Validator\IsArray::TYPE])) {
                         $values[$parameter] = sprintf("'%s'", implode(",", $table->{$parameter}));
                     } 
                 }
             }
 
-            parent::__construct(implode(",", $values), array(new Validator\IsString));
+            parent::__construct(implode(",", $values), array(new Validator\IsDefault));
         }
     }
 }

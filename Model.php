@@ -75,13 +75,13 @@ namespace Modules\Table {
             $foreign->execute();
             foreach($foreign->fetchAll(\PDO::FETCH_ASSOC) as $row) {
                 if ($row["REFERENCED_COLUMN_NAME"]) {
-                    $this->relations = [$this->labelize($row["CONSTRAINT_NAME"]) => $this->namespace . "\\" . $this->labelize($row["REFERENCED_TABLE_NAME"])];
+                    $this->parents = [$this->labelize($row["CONSTRAINT_NAME"]) => $this->namespace . "\\" . $this->labelize($row["REFERENCED_TABLE_NAME"])];
                 }
             }
             $many = $this->prepare(sprintf("SELECT * FROM`information_schema`.`KEY_COLUMN_USAGE`WHERE`information_schema`.`KEY_COLUMN_USAGE`.`TABLE_SCHEMA`='%s'AND`information_schema`.`KEY_COLUMN_USAGE`.`REFERENCED_TABLE_NAME`='%s'", $this->database, $this->table));
             $many->execute();           
             foreach($many->fetchAll(\PDO::FETCH_ASSOC) as $row) {
-                $this->relations = [$this->labelize($row["CONSTRAINT_NAME"]) => $this->namespace . "\\" . $this->labelize($row["TABLE_NAME"])];
+                $this->keys = [$this->labelize($row["CONSTRAINT_NAME"]) => $this->labelize($row["REFERENCED_COLUMN_NAME"])];
             } 
         }
     }

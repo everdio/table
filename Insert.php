@@ -4,7 +4,7 @@ namespace Modules\Table {
     final class Insert extends \Components\Validation {
         public function __construct(\Components\Core $table, array $values = NULL) {
             foreach ($table->mapping as $parameter) {                
-                if (isset($table->{$parameter}) && (!$table->get($parameter)->hasType(Validator\IsString\IsDatetime::TYPE) || $table->get($parameter)->hasType(Validator\IsString\IsDatetime\Timestamp::TYPE))) {
+                if (isset($table->{$parameter}) && (!$table->get($parameter)->hasTypes([Validator\IsString\IsDatetime::TYPE, Validator\IsString\IsDatetime\Timestamp::TYPE]))) {
                     $values[$parameter] = sprintf("`%s`.`%s`.`%s`", $table->database, $table->table, $table->getField($parameter));
                 }
             }

@@ -5,7 +5,7 @@ namespace Modules\Table {
         public function __construct(\COmponents\Core\Adapter\Mapper  $table) {
             $insert = new Insert($table);
             $values = new Values($table);
-            $update = new Update($table);            
+            $update = new Update($table);          
             parent::__construct(sprintf("INSERT INTO`%s`.`%s`(%s)VALUES(%s)ON DUPLICATE KEY UPDATE%s", $table->database, $table->table, $insert->execute(), $values->execute(), $update->execute()), [new Validator\IsString]);
         }
     }
