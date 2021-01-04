@@ -4,7 +4,7 @@ namespace Modules\Table {
         public function __construct(array $validations = [], string $select = NULL, string $from = NULL, array $relations = [], array $operators = [], string $orderby = NULL, string $query = NULL) {                  
             foreach ($validations as $validation) {
                 if ($validation instanceof \Components\Validation && $validation->isValid()) {
-                    if ($validation instanceof Select) {
+                    if ($validation instanceof Select || $validation instanceof Count) {
                         $select = $validation->execute();
                     } elseif ($validation instanceof From) {
                         $from = $validation->execute();
@@ -20,7 +20,7 @@ namespace Modules\Table {
                 }
             }
             
-            parent::__construct($select . $from . implode(false, $relations) . (sizeof($operators) ? sprintf("WHERE%s", implode(false, $operators)) : false) . $query . $orderby, [new \Components\Validator\IsString\Contains(["SELECT", "FROM"])]);
+            parent::__construct($select . $from . implode(false, $relations) . (sizeof($operators) ? sprintf("WHERE%s", implode(false, $operators)) : false) . $orderby . $query, [new \Components\Validator\IsString\Contains(["SELECT", "FROM"])]);
         }
     }
 }
