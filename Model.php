@@ -53,7 +53,6 @@ namespace Modules\Table {
                     default:
                         throw new \LogicException(sprintf("unknown column type %s for `%s`.`%s`", $row["DATA_TYPE"], $this->table, $row["COLUMN_NAME"]));
                 }
-                                
                 $this->add((string) $parameter, $parameter->getValidation($parameter->getValidators()));
                 $this->mapping = [$row["COLUMN_NAME"] => (string) $parameter];
             }                    
@@ -83,6 +82,8 @@ namespace Modules\Table {
             foreach($many->fetchAll(\PDO::FETCH_ASSOC) as $row) {
                 $this->keys = [$this->labelize($row["CONSTRAINT_NAME"]) => $this->labelize($row["REFERENCED_COLUMN_NAME"])];
             } 
+            
+            
         }
     }
 }

@@ -10,12 +10,19 @@ namespace Modules\Table {
             } elseif (isset($table->mapping) && $table->isNormal($table->mapping)) {
                 foreach ($table->restore($table->mapping) as $parameter => $value) {
                     if (!empty($value) || !$table->get($parameter)->hasTypes([Validator\IsEmpty::TYPE])) {
+                        if (substr($table->getField($parameter), 0, 1) == '@') {
+                            $expression = sprintf(":%s", $expression);
+                            $column = $table->getField($parameter);
+                        } else {
+                            $column = sprintf("`%s`.`%s`.`%s`", $table->database, $table->table, $table->getField($parameter));    
+                        }
+                        
                         if ($table->get($parameter)->hasTypes([Validator\IsInteger::TYPE, Validator\IsNumeric::TYPE])) {
-                            $operators[] = sprintf("`%s`.`%s`.`%s`%s %s ", $table->database, $table->table, $table->getField($parameter), $expression, $value);
+                            $operators[] = sprintf("%s %s %s ", $column, $expression, $value);
                         } elseif ($table->get($parameter)->hasTypes([Validator\IsDefault::TYPE, Validator\IsString::TYPE, Validator\IsString\IsDateTime\IsDate::TYPE])) {
-                            $operators[] = sprintf("`%s`.`%s`.`%s`%s '%s'", $table->database, $table->table, $table->getField($parameter), $expression, $this->sanitize($value));
+                            $operators[] = sprintf("%s %s '%s'", $column, $expression, $this->sanitize($value));
                         } elseif ($table->get($parameter)->hasTypes([Validator\IsArray::TYPE])) { 
-                            $operators[] = sprintf(" FIND_IN_SET('%s',`%s`.`%s`.`%s`)", implode(",", $value), $table->database, $table->table, $table->getField($parameter));
+                            $operators[] = sprintf(" FIND_IN_SET('%s', %s)", implode(",", $value), $column);
                         }
                     }
                 }               

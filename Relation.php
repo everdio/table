@@ -3,7 +3,7 @@ namespace Modules\Table {
     use \Components\Validator;
     use \Components\Core\Adapter\Mapper;
     final class Relation extends \Components\Validation {
-        public function __construct(Mapper $table, array $tables, string $join = NULL, array $joins = []) {
+        public function __construct(Mapper $table, array $tables, string $join = NULL, string $operator = "and", array $joins = []) {
             foreach ($tables as $parentTable) {   
                 if (isset($table->parents) && $parentTable instanceof Mapper && in_array((string) $parentTable, $table->parents)){
                     $joins[(string) $parentTable] = $this->_join($parentTable, $table, array_search((string) $parentTable, $table->parents), $join);
@@ -16,6 +16,15 @@ namespace Modules\Table {
                         if ($parentTable instanceof Mapper  && in_array((string) $parentTable, $childTable->parents)) {              
                             $joins[(string) $childTable] = $this->_join($childTable, $parentTable, array_search((string) $parentTable, $childTable->parents), $join);
                         }
+                    }
+                }
+            }
+            
+            foreach ($tables as $table) {
+                if ($table instanceof Mapper && array_key_exists((string) $table, $joins) && isset($table->mapping) &&  $table->isNormal($table->mapping)) {
+                    $filter = new Filter($table, $operator);
+                    if ($filter->isValid()) {
+                        $joins[(string) $table] .= "AND" . $filter->execute();
                     }
                 }
             }
