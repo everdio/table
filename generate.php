@@ -10,16 +10,13 @@ $stm->execute();
 
 foreach ($stm->fetchAll(\PDO::FETCH_COLUMN) as $table) {
     $model = new \Modules\Table\Model;
+    $model->store($this->pdo);
     $model->label = $this->labelize($table);
     $model->class = $this->labelize($table);
     $model->namespace = $this->model["namespace"];
-    $model->dsn = $this->pdo["dsn"];
-    $model->username = $this->pdo["username"];
-    $model->password = $this->pdo["password"];
-    $model->database = $this->pdo["database"];
     $model->table = $table;
-    $model->use = "\Modules\Table\Pdo";
     $model->setup();
+    
     echo (string) sprintf("%s\%s", $model->namespace, $model->class) . PHP_EOL;    
     ob_flush();   
 }

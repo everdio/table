@@ -31,7 +31,7 @@ namespace Modules\Table {
                     case "varchar":                        
                     case "bigint":
                     case "tinyint":
-                    case "mediumint":
+                    case "mediumint":   
                     case "smallint":                            
                     case "decimal":
                     case "int":
@@ -66,7 +66,7 @@ namespace Modules\Table {
                         $this->primary = [$row["COLUMN_NAME"] => $this->mapping[$row["COLUMN_NAME"]]];
                         break;
                     default:
-                        $this->keys = [$this->labelize($row["CONSTRAINT_NAME"]) => $this->mapping[$row["COLUMN_NAME"]]];
+                        $this->keys = [$this->mapping[$row["COLUMN_NAME"]] => $this->labelize($row["REFERENCED_COLUMN_NAME"])];
                 }
             }
             
@@ -74,16 +74,15 @@ namespace Modules\Table {
             $foreign->execute();
             foreach($foreign->fetchAll(\PDO::FETCH_ASSOC) as $row) {
                 if ($row["REFERENCED_COLUMN_NAME"]) {
-                    $this->parents = [$this->labelize($row["CONSTRAINT_NAME"]) => $this->namespace . "\\" . $this->labelize($row["REFERENCED_TABLE_NAME"])];
+                    $this->parents = [$this->mapping[$row["COLUMN_NAME"]] => $this->namespace . "\\" . $this->labelize($row["REFERENCED_TABLE_NAME"])];
                 }
             }
-            $many = $this->prepare(sprintf("SELECT * FROM`information_schema`.`KEY_COLUMN_USAGE`WHERE`information_schema`.`KEY_COLUMN_USAGE`.`TABLE_SCHEMA`='%s'AND`information_schema`.`KEY_COLUMN_USAGE`.`REFERENCED_TABLE_NAME`='%s'", $this->database, $this->table));
+            
+            $many = $this->prepare(sprintf("SELECT * FROM`information_schema`.`KEY_COLUMN_USAGE`WHERE`information_schema`.`KEY_COLUMN_USAGE`.`TABLE_SCHEMA`='%s'AND`information_schema`.`KEY_COLUMN_USAGE`.`REFERENCED_TABLE_NAME`='%s'AND`information_schema`.`KEY_COLUMN_USAGE`.`TABLE_NAME`!='%s'", $this->database, $this->table, $this->table));
             $many->execute();           
             foreach($many->fetchAll(\PDO::FETCH_ASSOC) as $row) {
-                $this->keys = [$this->labelize($row["CONSTRAINT_NAME"]) => $this->labelize($row["REFERENCED_COLUMN_NAME"])];
+                //$this->keys = [$this->labelize($row["CONSTRAINT_NAME"]) => $this->labelize($row["REFERENCED_COLUMN_NAME"])];
             } 
-            
-            
         }
     }
 }

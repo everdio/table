@@ -22,7 +22,9 @@ namespace Modules\Table {
                         } elseif ($table->get($parameter)->hasTypes([Validator\IsDefault::TYPE, Validator\IsString::TYPE, Validator\IsString\IsDateTime\IsDate::TYPE])) {
                             $operators[] = sprintf("%s %s '%s'", $column, $expression, $this->sanitize($value));
                         } elseif ($table->get($parameter)->hasTypes([Validator\IsArray::TYPE])) { 
-                            $operators[] = sprintf(" FIND_IN_SET('%s', %s)", implode(",", $value), $column);
+                            //$operators[] = sprintf(" FIND_IN_SET('%s', %s)", implode(",", $value), $column);
+                            //$operators[] = sprintf("'%s' IN('%s')",$column, implode(",", $value));
+                            $operators[] = sprintf(" CONCAT(\",\", %s, \",\") REGEXP \",(%s),\"", $column, implode("|", $value));
                         }
                     }
                 }               

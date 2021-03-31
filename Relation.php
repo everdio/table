@@ -3,37 +3,30 @@ namespace Modules\Table {
     use \Components\Validator;
     use \Components\Core\Adapter\Mapper;
     final class Relation extends \Components\Validation {
-        public function __construct(Mapper $table, array $tables, string $join = NULL, string $operator = "and", array $joins = []) {
+        public function __construct(Mapper $table, array $tables, string $join = NULL, string $operator = "AND", array $joins = []) {
+
             foreach ($tables as $parentTable) {   
-                if (isset($table->parents) && $parentTable instanceof Mapper && in_array((string) $parentTable, $table->parents)){
-                    $joins[(string) $parentTable] = $this->_join($parentTable, $table, array_search((string) $parentTable, $table->parents), $join);
+                if ($parentTable instanceof Mapper && !$table instanceof $parentTable) {
+                    $filter = new Filter($parentTable, $operator);
+                    $joins[] = $this->_join($parentTable, $table, array_search((string) $parentTable, $table->parents), $join) . ($filter->isValid() ? strtoupper($operator) . $filter->execute() : false);
                 }
             }
 
             foreach ($tables as $childTable) {
-                if ($childTable instanceof Mapper && !array_key_exists((string) $childTable, $joins) && isset($childTable->parents)) {
+                if ($childTable instanceof Mapper) {
                     foreach ($tables as $parentTable) {
-                        if ($parentTable instanceof Mapper  && in_array((string) $parentTable, $childTable->parents)) {              
-                            $joins[(string) $childTable] = $this->_join($childTable, $parentTable, array_search((string) $parentTable, $childTable->parents), $join);
+                        if ($parentTable instanceof Mapper && !$childTable instanceof $parentTable && $childTable->isParent($parentTable)) {              
+                            //$joins[(string) $childTable] = $this->_join($childTable, $parentTable, array_search((string) $parentTable, $childTable->parents), $join);
                         }
                     }
                 }
             }
-            
-            foreach ($tables as $table) {
-                if ($table instanceof Mapper && array_key_exists((string) $table, $joins) && isset($table->mapping) &&  $table->isNormal($table->mapping)) {
-                    $filter = new Filter($table, $operator);
-                    if ($filter->isValid()) {
-                        $joins[(string) $table] .= "AND" . $filter->execute();
-                    }
-                }
-            }
-            
+
             parent::__construct(implode(PHP_EOL, $joins), [new Validator\IsEmpty, new Validator\IsString\Contains(["JOIN"])]);
         }        
                 
-        private function _join(\Components\Core\Adapter\Mapper $childTable, \Components\Core\Adapter\Mapper $parentTable, string $key, string $join = NULL) : string {            
-            return (string) sprintf("%sJOIN`%s`.`%s`ON`%s`.`%s`.`%s`=`%s`.`%s`.`%s`", $join, $childTable->database, $childTable->table, $childTable->database, $childTable->table, $childTable->getField($childTable->getForeign($key)), $parentTable->database, $parentTable->table, $parentTable->getField($parentTable->getForeign($key)));
+        private function _join(\Components\Core\Adapter\Mapper $joinTable, \Components\Core\Adapter\Mapper $onTable, string $parameter, string $join = NULL) : string {       
+            return (string) sprintf("%sJOIN`%s`.`%s`ON`%s`.`%s`.`%s`=`%s`.`%s`.`%s`", $join, $joinTable->database, $joinTable->table, $joinTable->database, $joinTable->table, $joinTable->getField($onTable->getKey($parameter)), $onTable->database, $onTable->table, $onTable->getField($parameter));
         }
     }
 }

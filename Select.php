@@ -6,7 +6,7 @@ namespace Modules\Table {
             foreach ($tables as $table) {               
                 if ($table instanceof \Components\Core\Adapter\Mapper && isset($table->mapping)) {
                     foreach ($table->inter($table->mapping) as $parameter) {
-                        $select[$parameter] = sprintf("%sAS`%s`",(substr($table->getField($parameter), 0, 1) == '@' ? $table->getField($parameter) : sprintf("`%s`.`%s`.`%s`", $table->database, $table->table, $table->getField($parameter))), $parameter);
+                        $select[$parameter] = sprintf(" %s AS`%s`",(substr($table->getField($parameter), 0, 1) == '@' ? $table->getField($parameter) : sprintf("`%s`.`%s`.`%s`", $table->database, $table->table, $table->getField($parameter))), $parameter);
                     }
                 }
             }                
