@@ -1,8 +1,8 @@
 <?php
 namespace Modules\Table {
-    use \Components\Validator;
-    final class Update extends \Components\Validation {
-        public function __construct(\Components\Core $table, array $values = []) {
+    use \Component\Validator;
+    final class Update extends \Component\Validation {
+        public function __construct(\Component\Core $table, array $values = []) {
             foreach ($table->mapping as $parameter) {
                 if (isset($table->{$parameter}) && !($table->get($parameter)->hasTypes([Validator\IsString\IsDatetime::TYPE, Validator\IsString\IsDatetime\Timestamp::TYPE]))) {
                     if ($table->get($parameter)->hasTypes([Validator\IsEmpty::TYPE]) && empty($table->{$parameter}) && $table->{$parameter} !== 0) {

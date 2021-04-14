@@ -1,8 +1,8 @@
 <?php
 namespace Modules\Table {
-    use \Components\Validator;
-    final class Save extends \Components\Validation {
-        public function __construct(\COmponents\Core\Adapter\Mapper  $table) {
+    use \Component\Validator;
+    final class Save extends \Component\Validation {
+        public function __construct(\Component\Core\Adapter\Mapper  $table) {
             $insert = new Insert($table);
             $values = new Values($table);
             $update = new Update($table);          

@@ -1,9 +1,9 @@
 <?php
 namespace Modules\Table {
-    final class Find extends \Components\Validation {
-        public function __construct(array $validations = [], string $select = NULL, string $from = NULL, array $relations = [], array $operators = [], string $orderby = NULL, string $query = NULL) {                  
+    final class Find extends \Component\Validation {
+        public function __construct(array $validations = [], string $operator = "AND", string $select = NULL, string $from = NULL, array $relations = [], array $operators = [], string $orderby = NULL, string $query = NULL) {                  
             foreach ($validations as $validation) {
-                if ($validation instanceof \Components\Validation && $validation->isValid()) {
+                if ($validation instanceof \Component\Validation && $validation->isValid()) {
                     if ($validation instanceof Select || $validation instanceof Count) {
                         $select = $validation->execute();
                     } elseif ($validation instanceof From) {
@@ -19,8 +19,7 @@ namespace Modules\Table {
                     }
                 }
             }
-            
-            parent::__construct($select . $from . implode(false, $relations) . (sizeof($operators) ? sprintf("WHERE%s", implode(false, $operators)) : false) . $orderby . $query, [new \Components\Validator\IsString\Contains(["SELECT", "FROM"])]);
+            parent::__construct($select . $from . implode(false, $relations) . (sizeof($operators) ? sprintf("WHERE%s", implode($operator, $operators)) : false) . $orderby . $query, [new \Component\Validator\IsString\Contains(["SELECT", "FROM"])]);
         }
     }
 }

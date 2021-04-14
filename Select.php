@@ -1,10 +1,10 @@
 <?php 
 namespace Modules\Table {
-    use \Components\Validator;
-    final class Select extends \Components\Validation {
+    use \Component\Validator;
+    final class Select extends \Component\Validation {
         public function __construct(array $tables, array $select = []) {
             foreach ($tables as $table) {               
-                if ($table instanceof \Components\Core\Adapter\Mapper && isset($table->mapping)) {
+                if ($table instanceof \Component\Core\Adapter\Mapper && isset($table->mapping)) {
                     foreach ($table->inter($table->mapping) as $parameter) {
                         $select[$parameter] = sprintf(" %s AS`%s`",(substr($table->getField($parameter), 0, 1) == '@' ? $table->getField($parameter) : sprintf("`%s`.`%s`.`%s`", $table->database, $table->table, $table->getField($parameter))), $parameter);
                     }

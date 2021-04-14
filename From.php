@@ -1,10 +1,10 @@
 <?php 
 namespace Modules\Table {
-    use \Components\Validator;
-    final class From extends \Components\Validation {
+    use \Component\Validator;
+    final class From extends \Component\Validation {
         public function __construct(array $mappers, array $from = []) {
             foreach ($mappers as $mapper) {               
-                if ($mapper instanceof \Components\Core) {
+                if ($mapper instanceof \Component\Core) {
                     $from[] = sprintf("`%s`.`%s`", $mapper->database, $mapper->table);
                 }
             }                
